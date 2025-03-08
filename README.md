@@ -1,70 +1,59 @@
-# Getting Started with Create React App
+# 📌 Dashboard LoRaWAN - Mine (Projet Scolaire)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+⚠️ **Avertissement : Ce projet est réalisé dans un cadre académique.**
+Ce repository est dédié au développement d'un **dashboard de monitoring** permettant de suivre différentes données relatives à une mine utilisant **LoRaWAN**. **Aucune utilisation réelle ou malveillante n'est prévue.**
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🎯 **Objectif du projet**
+Ce projet vise à développer une interface permettant de **collecter, visualiser et analyser** les données transmises par des capteurs placés sur une zone de détection. Ces capteurs utilisent **LoRaWAN** pour transmettre les informations en temps réel.
 
-### `npm start`
+## 📡 **Données surveillées**
+Le système collecte et affiche les informations suivantes :
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **📍 Position** : Localisation de la mine
+- **⏳ Horodotage** : Date et heure des événements
+- **📢 Identifiant** : ID unique de l'événement
+- **📊 Vibrations** : Mesure des vibrations du sol (**gyroscope et accéléromètre**)
+- **🚨 Cause de l'événement** : Type de déclenchement (**Qui ? Quoi ?**)
+- **⚠️ État de la mine** : Actif / Inactif / Alerte
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🛠️ **Technologies utilisées**
+- **Capteurs** : Gyroscope et accéléromètre 📡
+- **Frontend** : React.js (avec Chart.js, Leaflet, et React-Paginate)
+- **Backend** (à venir) : API pour centraliser les données
+- **Base de données** (à venir) : Stockage des événements
+- **LoRaWAN** : Protocole de transmission des données
+- **MQTT** : Communication des capteurs vers la plateforme
 
-### `npm test`
+## 📌 **Fonctionnalités principales**
+✅ Visualisation des **données en temps réel** 📊
+✅ **Carte interactive** avec localisation de la mine 🗺️
+✅ **Graphiques dynamiques** pour l’analyse des vibrations 📈
+✅ **Pagination des événements** pour une meilleure navigation 📑
+✅ **Zoom et pan** sur les graphiques pour explorer les données 🔍
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🚀 **Installation et exécution**
+### 📥 **Cloner le repository**
+```sh
+ git clone https://github.com/TonNomGitHub/dashboard-lorawan.git
+ cd dashboard-lorawan
+```
+### 📦 **Installer les dépendances**
+```sh
+ npm install
+```
+### ▶️ **Lancer l'application**
+```sh
+ npm start
+```
+L'application sera disponible sur **http://localhost:3000** 🚀
 
-### `npm run build`
+## 📌 **Mise en garde et responsabilités**
+🔴 **Ce projet est uniquement destiné à un usage académique et pédagogique.**
+🔴 **Aucune donnée sensible ou réelle n'est impliquée dans ce système.**
+🔴 **Toute utilisation en dehors du cadre scolaire est sous la responsabilité de l'utilisateur.**
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+🚀 **Projet réalisé dans le cadre d'une formation en cybersécurité et IoT.**
