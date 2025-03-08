@@ -1,4 +1,3 @@
-# dashboard_iot
 # 📌 Dashboard LoRaWAN - Mine (Projet Scolaire)
 
 ⚠️ **Avertissement : Ce projet est réalisé dans un cadre académique.**
