@@ -35,32 +35,44 @@ ChartJS.register(
   zoomPlugin
 );
 
-// Icône personnalisée pour la mine
-const mineIcon = new L.Icon({
+// 📍 **Coordonnées précises de la mine au Campus Cyber**
+const CAMPUS_CYBER = [48.896742, 2.233377];
+
+// 🔴 **Icône de la mine active**
+const mineIconActive = new L.Icon({
   iconUrl: "https://upload.wikimedia.org/wikipedia/commons/e/ec/RedDot.svg",
   iconSize: [20, 20],
   iconAnchor: [10, 10],
 });
 
+// 💥 **Icône de la mine explosée**
+const mineIconExploded = new L.Icon({
+  iconUrl: "https://upload.wikimedia.org/wikipedia/commons/5/5f/BlackDot.svg",
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+});
+
+// **🔴 Seuil de détection d'explosion**
+const EXPLOSION_THRESHOLD = 2;
+
 const Dashboard = () => {
-  const [data, setData] = useState([]); // Stocke les données reçues
-  const [status, setStatus] = useState("Active");
+  const [data, setData] = useState([]); // 📡 Historique des données reçues
+  const [status, setStatus] = useState("Active"); // ✅ État de la mine
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 10;
-  const position = [48.896742, 2.233377]; // Bâtiment Satellite, Campus Cyber
-  const maxDataPoints = 500; // Max historique de points
+  const maxDataPoints = 500; // 🕵️‍♂️ Historique max des points
 
   useEffect(() => {
     const options = {
       clientId: "dashboard-client-" + Math.random().toString(16).substr(2, 8),
-      reconnectPeriod: 5000, // Reconnexion toutes les 5s
+      reconnectPeriod: 5000, // 🔄 Reconnexion automatique toutes les 5s
     };
 
-    // ✅ Utilisation du broker Mosquitto WebSocket
+    // ✅ **Connexion à Mosquitto WebSocket**
     const client = mqtt.connect("wss://test.mosquitto.org:8081/mqtt", options);
 
     client.on("connect", () => {
-      console.log("✅ Connecté au broker public Mosquitto !");
+      console.log("✅ Connecté au broker Mosquitto !");
       client.subscribe("helium/6081F9D8CF9CEC95/rx", (err) => {
         if (!err) {
           console.log("📡 Abonné au topic !");
@@ -83,10 +95,20 @@ const Dashboard = () => {
       try {
         const parsedMessage = JSON.parse(message.toString());
 
+        // 🛑 **Détection d'explosion**
+        if (
+          Math.abs(parsedMessage.ax) > EXPLOSION_THRESHOLD ||
+          Math.abs(parsedMessage.ay) > EXPLOSION_THRESHOLD ||
+          Math.abs(parsedMessage.az) > EXPLOSION_THRESHOLD
+        ) {
+          console.log("💥 Mine explosée !");
+          setStatus("Explosée");
+        }
+
         setData((prevData) => {
           const updatedData = [...prevData, parsedMessage]
-            .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)) // 🔹 Trie par timestamp
-            .slice(-maxDataPoints); // 🔹 Limite la taille de l'historique
+            .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)) // 🕒 Trie des données par timestamp
+            .slice(-maxDataPoints); // 🔄 Conservation de l’historique
 
           return updatedData;
         });
@@ -98,9 +120,9 @@ const Dashboard = () => {
     return () => {
       client.end();
     };
-  }, []);
+  }, []); // **Bien garder `[]` pour éviter les re-renders infinis**
 
-  // 📌 Gestion de la pagination
+  // 📌 **Gestion de la pagination**
   const handlePageClick = ({ selected }) => {
     setCurrentPage(selected);
   };
@@ -109,9 +131,9 @@ const Dashboard = () => {
   const currentPageData = data.slice(offset, offset + itemsPerPage);
   const pageCount = Math.ceil(data.length / itemsPerPage);
 
-  // 📊 Données du graphique
+  // 📊 **Données du graphique**
   const chartData = {
-    labels: data.map((d) => d.timestamp), // 🔹 Utilisation de toutes les données (sans dataReductionFactor)
+    labels: data.map((d) => d.timestamp),
     datasets: [
       {
         label: "Vibration (mg)",
@@ -152,18 +174,23 @@ const Dashboard = () => {
       <h2 className="dashboard-title">Dashboard LoRaWAN - Mine</h2>
       <div className="status-container">
         <span>État de la mine :</span>
-        <span className={`status ${status === "Active" ? "active" : "inactive"}`}>{status}</span>
+        <span className={`status ${status === "Active" ? "active" : "exploded"}`}>{status}</span>
       </div>
-      <MapContainer center={position} zoom={13} className="map-container">
+
+      {/* 🌍 **Carte avec localisation de la mine** */}
+      <MapContainer center={CAMPUS_CYBER} zoom={18} className="map-container">
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        <Marker position={position} icon={mineIcon}>
-          <Popup>⚠️ Localisation de la mine ⚠️</Popup>
+        <Marker position={CAMPUS_CYBER} icon={status === "Active" ? mineIconActive : mineIconExploded}>
+          <Popup>{status === "Active" ? "⚠️ Mine active ⚠️" : "💥 Mine explosée ! 💥"}</Popup>
         </Marker>
       </MapContainer>
+
       <div className="chart-container small-chart">
         <h3>Vibrations détectées</h3>
         <Line data={chartData} options={chartOptions} />
       </div>
+
+      {/* 📋 **Tableau des événements** */}
       <div className="table-container">
         <h3>Derniers événements</h3>
         <table>
@@ -188,24 +215,6 @@ const Dashboard = () => {
             ))}
           </tbody>
         </table>
-        <div className="pagination-container">
-          <ReactPaginate
-            previousLabel={"← Précédent"}
-            nextLabel={"Suivant →"}
-            breakLabel={"..."}
-            pageCount={pageCount}
-            marginPagesDisplayed={2}
-            pageRangeDisplayed={5}
-            onPageChange={handlePageClick}
-            containerClassName={"pagination"}
-            activeClassName={"active"}
-            previousClassName={"page-button"}
-            nextClassName={"page-button"}
-            disabledClassName={"disabled"}
-            breakClassName={"page-button"}
-            pageClassName={"page-button"}
-          />
-        </div>
       </div>
     </div>
   );
