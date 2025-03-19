@@ -5,7 +5,8 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./App.css";
 import ReactPaginate from "react-paginate";
-import 'chartjs-adapter-date-fns';
+import mqtt from "mqtt"; // 🚀 Import de MQTT
+import "chartjs-adapter-date-fns";
 
 import {
   Chart as ChartJS,
@@ -17,6 +18,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler,
 } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
 
@@ -29,9 +31,11 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
+  Filler,
   zoomPlugin
 );
 
+// Icône personnalisée pour la mine
 const mineIcon = new L.Icon({
   iconUrl: "https://upload.wikimedia.org/wikipedia/commons/e/ec/RedDot.svg",
   iconSize: [20, 20],
@@ -39,41 +43,64 @@ const mineIcon = new L.Icon({
 });
 
 const Dashboard = () => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState([]); // Stocke les données reçues
   const [status, setStatus] = useState("Active");
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 10;
   const position = [48.8566, 2.3522];
-  const maxDataPoints = 3600;
-  const dataReductionFactor = 10; // Réduit le nombre de points affichés
+  const maxDataPoints = 500; // Max historique de points
 
   useEffect(() => {
-    return () => {
-      ChartJS.helpers.each(ChartJS.instances, function (instance) {
-        instance.destroy();
+    const options = {
+      clientId: "dashboard-client-" + Math.random().toString(16).substr(2, 8),
+      reconnectPeriod: 5000, // Reconnexion toutes les 5s
+    };
+
+    // ✅ Utilisation du broker Mosquitto WebSocket
+    const client = mqtt.connect("wss://test.mosquitto.org:8081/mqtt", options);
+
+    client.on("connect", () => {
+      console.log("✅ Connecté au broker public Mosquitto !");
+      client.subscribe("helium/6081F9D8CF9CEC95/rx", (err) => {
+        if (!err) {
+          console.log("📡 Abonné au topic !");
+        } else {
+          console.error("❌ Erreur d'abonnement :", err);
+        }
       });
+    });
+
+    client.on("error", (err) => {
+      console.error("❌ Erreur MQTT :", err);
+    });
+
+    client.on("close", () => {
+      console.warn("⚠️ Connexion fermée !");
+    });
+
+    client.on("message", (topic, message) => {
+      console.log(`📩 Message reçu sur ${topic}:`, message.toString());
+      try {
+        const parsedMessage = JSON.parse(message.toString());
+
+        setData((prevData) => {
+          const updatedData = [...prevData, parsedMessage]
+            .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)) // 🔹 Trie par timestamp
+            .slice(-maxDataPoints); // 🔹 Limite la taille de l'historique
+
+          return updatedData;
+        });
+      } catch (error) {
+        console.error("❌ Erreur de parsing du message :", error);
+      }
+    });
+
+    return () => {
+      client.end();
     };
   }, []);
-  
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setData((prevData) => {
-        const newData = [
-          ...prevData.slice(-maxDataPoints + 1), // Garde un nombre fixe de points, en supprimant les anciens
-          {
-            timestamp: new Date().toISOString(),
-            vibration: Math.random() * 2000,
-            ax: (Math.random() - 0.5) * 10,
-            ay: (Math.random() - 0.5) * 10,
-            az: (Math.random() - 0.5) * 10,
-          },
-        ];
-        return newData;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
+  // 📌 Gestion de la pagination
   const handlePageClick = ({ selected }) => {
     setCurrentPage(selected);
   };
@@ -82,14 +109,13 @@ const Dashboard = () => {
   const currentPageData = data.slice(offset, offset + itemsPerPage);
   const pageCount = Math.ceil(data.length / itemsPerPage);
 
-  const reducedData = data.filter((_, index) => index % dataReductionFactor === 0);
-
+  // 📊 Données du graphique
   const chartData = {
-    labels: reducedData.map((d) => d.timestamp),
+    labels: data.map((d) => d.timestamp), // 🔹 Utilisation de toutes les données (sans dataReductionFactor)
     datasets: [
       {
         label: "Vibration (mg)",
-        data: reducedData.map((d) => d.vibration),
+        data: data.map((d) => d.vibration),
         borderColor: "#2563eb",
         backgroundColor: "rgba(37, 99, 235, 0.2)",
         fill: true,
@@ -100,51 +126,24 @@ const Dashboard = () => {
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    animation: false, // Désactive les animations pour éviter les décalages
+    animation: false,
     plugins: {
       zoom: {
-        pan: {
-          enabled: true,
-          mode: "x",
-        },
-        zoom: {
-          wheel: {
-            enabled: true,
-          },
-          pinch: {
-            enabled: true,
-          },
-          mode: "x",
-        },
+        pan: { enabled: true, mode: "x" },
+        zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: "x" },
       },
     },
     scales: {
       x: {
         type: "time",
         time: {
-          unit: "minute", // Affichage en minutes pour éviter la surcharge
-          displayFormats: {
-            second: "HH:mm:ss",
-            minute: "HH:mm",
-            hour: "HH:mm",
-          },
+          unit: "minute",
+          displayFormats: { second: "HH:mm:ss", minute: "HH:mm", hour: "HH:mm" },
         },
-        ticks: {
-          maxRotation: 0,
-          autoSkip: true,
-          maxTicksLimit: 10, // Réduit le nombre d'heures affichées pour plus de clarté
-        },
-        title: {
-          display: true,
-          text: "Temps",
-        },
+        ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 },
+        title: { display: true, text: "Temps" },
       },
-      y: {
-        title: {
-          display: true,
-          text: "Vibration (mg)",
-        },
-      },
+      y: { title: { display: true, text: "Vibration (mg)" } },
     },
   };
 
@@ -153,9 +152,7 @@ const Dashboard = () => {
       <h2 className="dashboard-title">Dashboard LoRaWAN - Mine</h2>
       <div className="status-container">
         <span>État de la mine :</span>
-        <span className={`status ${status === "Active" ? "active" : "inactive"}`}>
-          {status}
-        </span>
+        <span className={`status ${status === "Active" ? "active" : "inactive"}`}>{status}</span>
       </div>
       <MapContainer center={position} zoom={13} className="map-container">
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
