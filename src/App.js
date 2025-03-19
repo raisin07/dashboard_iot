@@ -5,6 +5,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./App.css";
 import ReactPaginate from "react-paginate";
+import 'chartjs-adapter-date-fns';
 
 import {
   Chart as ChartJS,
@@ -46,6 +47,14 @@ const Dashboard = () => {
   const maxDataPoints = 3600;
   const dataReductionFactor = 10; // Réduit le nombre de points affichés
 
+  useEffect(() => {
+    return () => {
+      ChartJS.helpers.each(ChartJS.instances, function (instance) {
+        instance.destroy();
+      });
+    };
+  }, []);
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setData((prevData) => {
