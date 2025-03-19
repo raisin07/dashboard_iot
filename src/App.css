@@ -202,43 +202,70 @@ th {
     color: #fff;
   }
   
-  /* 🌟 Pagination */
-  .pagination-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-  }
-  
-  .page-button {
-    display: inline-block;
-    padding: 12px 18px;
-    margin: 5px;
-    border: 2px solid #ff8a00;
-    border-radius: 25px;
-    background: white;
-    color: #ff8a00;
-    cursor: pointer;
-    font-weight: bold;
-    text-transform: uppercase;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
-  }
-  
-  .page-button:hover {
-    background: #ff8a00;
-    color: white;
-    transform: scale(1.1);
-  }
-  
-  .active {
-    background: #ff8a00;
-    color: white;
-  }
-  
-  .disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+/* 🌟 Pagination */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px; /* Espacement équilibré */
+  margin-top: 20px;
+}
+
+/* Boutons de pagination */
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+}
+
+.pagination li {
+  margin: 0 5px;
+}
+
+.pagination a {
+  text-decoration: none;
+  padding: 10px 15px;
+  border: 2px solid #2563eb;
+  color: #2563eb;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+}
+
+.pagination .active a {
+  background-color: #2563eb;
+  color: white;
+}
+
+.pagination a:hover {
+  background-color: #2563eb;
+  color: white;
+}
+
+/* Boutons précédent et suivant */
+.page-button {
+  padding: 10px 15px;
+  border: 2px solid #2563eb;
+  border-radius: 5px;
+  background-color: white;
+  color: #2563eb;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+}
+
+.page-button:hover {
+  background: #2563eb;
+  color: white;
+}
+
+/* Désactiver les boutons quand il n'y a plus de page */
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
   or: #2563eb;
   color: white;
 }
