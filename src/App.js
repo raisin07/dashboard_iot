@@ -35,7 +35,7 @@ ChartJS.register(
   zoomPlugin
 );
 
-// 📍 **Coordonnées précises de la mine au Campus Cyber**
+// 📍 **Coordonnées précises de la mine**
 const CAMPUS_CYBER = [48.896742, 2.233377];
 
 // 🔴 **Icône de la mine active**
@@ -54,13 +54,13 @@ const mineIconExploded = new L.Icon({
 
 // **🔴 Seuil de détection d'explosion**
 const EXPLOSION_THRESHOLD = 2;
+const MAX_DATA_POINTS = 500; // 📊 Historique max des points affichés
+const ITEMS_PER_PAGE = 10; // 📄 Nombre d'éléments par page
 
 const Dashboard = () => {
   const [data, setData] = useState([]); // 📡 Historique des données reçues
   const [status, setStatus] = useState("Active"); // ✅ État de la mine
   const [currentPage, setCurrentPage] = useState(0);
-  const itemsPerPage = 10;
-  const maxDataPoints = 500; // 🕵️‍♂️ Historique max des points
 
   useEffect(() => {
     const options = {
@@ -95,23 +95,25 @@ const Dashboard = () => {
       try {
         const parsedMessage = JSON.parse(message.toString());
 
-        // 🛑 **Détection d'explosion**
-        if (
+        // 🔥 **Détection d'explosion et réinitialisation**
+        const isExploded =
           Math.abs(parsedMessage.ax) > EXPLOSION_THRESHOLD ||
           Math.abs(parsedMessage.ay) > EXPLOSION_THRESHOLD ||
-          Math.abs(parsedMessage.az) > EXPLOSION_THRESHOLD
-        ) {
-          console.log("💥 Mine explosée !");
-          setStatus("Explosée");
-        }
+          Math.abs(parsedMessage.az) > EXPLOSION_THRESHOLD;
+
+        setStatus(isExploded ? "Explosée" : "Active"); // ✅ **Mise à jour immédiate de l'état**
 
         setData((prevData) => {
           const updatedData = [...prevData, parsedMessage]
             .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)) // 🕒 Trie des données par timestamp
-            .slice(-maxDataPoints); // 🔄 Conservation de l’historique
+            .slice(-MAX_DATA_POINTS); // 🔄 Conservation de l’historique
 
           return updatedData;
         });
+
+        // 🔄 **Met à jour la page pour afficher les nouvelles données**
+        setCurrentPage(0);
+
       } catch (error) {
         console.error("❌ Erreur de parsing du message :", error);
       }
@@ -120,16 +122,16 @@ const Dashboard = () => {
     return () => {
       client.end();
     };
-  }, []); // **Bien garder `[]` pour éviter les re-renders infinis**
+  }, []);
 
   // 📌 **Gestion de la pagination**
   const handlePageClick = ({ selected }) => {
     setCurrentPage(selected);
   };
 
-  const offset = currentPage * itemsPerPage;
-  const currentPageData = data.slice(offset, offset + itemsPerPage);
-  const pageCount = Math.ceil(data.length / itemsPerPage);
+  const offset = currentPage * ITEMS_PER_PAGE;
+  const currentPageData = data.slice(offset, offset + ITEMS_PER_PAGE);
+  const pageCount = Math.ceil(data.length / ITEMS_PER_PAGE);
 
   // 📊 **Données du graphique**
   const chartData = {
@@ -190,7 +192,6 @@ const Dashboard = () => {
         <Line data={chartData} options={chartOptions} />
       </div>
 
-      {/* 📋 **Tableau des événements** */}
       <div className="table-container">
         <h3>Derniers événements</h3>
         <table>
@@ -216,6 +217,24 @@ const Dashboard = () => {
           </tbody>
         </table>
       </div>
+
+      <ReactPaginate
+  previousLabel={"← Précédent"}
+  nextLabel={"Suivant →"}
+  breakLabel={"..."}
+  pageCount={pageCount}
+  marginPagesDisplayed={1}
+  pageRangeDisplayed={3}
+  onPageChange={handlePageClick}
+  containerClassName={"pagination-container"}
+  pageClassName={"page-item"}
+  pageLinkClassName={"page-link"}
+  previousClassName={"page-button"}
+  nextClassName={"page-button"}
+  activeClassName={"active"}
+  disabledClassName={"disabled"}
+/>
+
     </div>
   );
 };
