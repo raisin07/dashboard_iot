@@ -218,14 +218,19 @@ const Dashboard = () => {
       </div>
 
       <ReactPaginate
-        previousLabel={"← Précédent"}
-        nextLabel={"Suivant →"}
-        breakLabel={"..."}
-        pageCount={pageCount}
-        onPageChange={handlePageClick}
-        containerClassName={"pagination-container"}
-        activeClassName={"active"}
-      />
+  previousLabel={"← Précédent"}
+  nextLabel={"Suivant →"}
+  breakLabel={"..."}
+  pageCount={pageCount}
+  onPageChange={handlePageClick}
+  containerClassName={"pagination-container"}
+  pageClassName={"page-item"}
+  pageLinkClassName={"page-link"}
+  previousClassName={"page-button"}
+  nextClassName={"page-button"}
+  activeClassName={"active"}
+  disabledClassName={"disabled"}
+/>
     </div>
   );
 };
