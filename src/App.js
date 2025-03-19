@@ -5,7 +5,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./App.css";
 import ReactPaginate from "react-paginate";
-import mqtt from "mqtt"; // 🚀 Import de MQTT
+import mqtt from "mqtt";
 import "chartjs-adapter-date-fns";
 
 import {
@@ -35,37 +35,37 @@ ChartJS.register(
   zoomPlugin
 );
 
-// 📍 **Coordonnées précises de la mine**
-const CAMPUS_CYBER = [48.896742, 2.233377];
+// 📍 **Coordonnées précises du Campus Cyber**
+const CAMPUS_CYBER = [48.886528, 2.249308];
 
-// 🔴 **Icône de la mine active**
+// 🔴 **Icône de la mine active (rouge)**
 const mineIconActive = new L.Icon({
   iconUrl: "https://upload.wikimedia.org/wikipedia/commons/e/ec/RedDot.svg",
   iconSize: [20, 20],
   iconAnchor: [10, 10],
 });
 
-// 💥 **Icône de la mine explosée**
+// 💥 **Icône de la mine explosée (fonctionnelle)**
 const mineIconExploded = new L.Icon({
-  iconUrl: "https://upload.wikimedia.org/wikipedia/commons/5/5f/BlackDot.svg",
-  iconSize: [20, 20],
-  iconAnchor: [10, 10],
+  iconUrl: "https://upload.wikimedia.org/wikipedia/commons/e/ec/RedDot.svg",
+  iconSize: [40, 40], // Ajustement de la taille
+  iconAnchor: [20, 20],
 });
 
 // **🔴 Seuil de détection d'explosion**
 const EXPLOSION_THRESHOLD = 2;
-const MAX_DATA_POINTS = 500; // 📊 Historique max des points affichés
-const ITEMS_PER_PAGE = 10; // 📄 Nombre d'éléments par page
+const MAX_DATA_POINTS = 500;
+const ITEMS_PER_PAGE = 10;
 
 const Dashboard = () => {
-  const [data, setData] = useState([]); // 📡 Historique des données reçues
-  const [status, setStatus] = useState("Active"); // ✅ État de la mine
+  const [data, setData] = useState([]); 
+  const [status, setStatus] = useState("Active"); 
   const [currentPage, setCurrentPage] = useState(0);
 
   useEffect(() => {
     const options = {
       clientId: "dashboard-client-" + Math.random().toString(16).substr(2, 8),
-      reconnectPeriod: 5000, // 🔄 Reconnexion automatique toutes les 5s
+      reconnectPeriod: 5000, 
     };
 
     // ✅ **Connexion à Mosquitto WebSocket**
@@ -101,17 +101,16 @@ const Dashboard = () => {
           Math.abs(parsedMessage.ay) > EXPLOSION_THRESHOLD ||
           Math.abs(parsedMessage.az) > EXPLOSION_THRESHOLD;
 
-        setStatus(isExploded ? "Explosée" : "Active"); // ✅ **Mise à jour immédiate de l'état**
+        setStatus(isExploded ? "Explosée" : "Active"); 
 
         setData((prevData) => {
           const updatedData = [...prevData, parsedMessage]
-            .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)) // 🕒 Trie des données par timestamp
-            .slice(-MAX_DATA_POINTS); // 🔄 Conservation de l’historique
+            .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+            .slice(-MAX_DATA_POINTS);
 
           return updatedData;
         });
 
-        // 🔄 **Met à jour la page pour afficher les nouvelles données**
         setCurrentPage(0);
 
       } catch (error) {
@@ -219,22 +218,14 @@ const Dashboard = () => {
       </div>
 
       <ReactPaginate
-  previousLabel={"← Précédent"}
-  nextLabel={"Suivant →"}
-  breakLabel={"..."}
-  pageCount={pageCount}
-  marginPagesDisplayed={1}
-  pageRangeDisplayed={3}
-  onPageChange={handlePageClick}
-  containerClassName={"pagination-container"}
-  pageClassName={"page-item"}
-  pageLinkClassName={"page-link"}
-  previousClassName={"page-button"}
-  nextClassName={"page-button"}
-  activeClassName={"active"}
-  disabledClassName={"disabled"}
-/>
-
+        previousLabel={"← Précédent"}
+        nextLabel={"Suivant →"}
+        breakLabel={"..."}
+        pageCount={pageCount}
+        onPageChange={handlePageClick}
+        containerClassName={"pagination-container"}
+        activeClassName={"active"}
+      />
     </div>
   );
 };
