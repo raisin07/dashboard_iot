@@ -47,7 +47,7 @@ const Dashboard = () => {
   const [status, setStatus] = useState("Active");
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 10;
-  const position = [48.8566, 2.3522];
+  const position = [48.896742, 2.233377]; // Bâtiment Satellite, Campus Cyber
   const maxDataPoints = 500; // Max historique de points
 
   useEffect(() => {
