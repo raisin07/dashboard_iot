@@ -61,6 +61,7 @@
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
 }
 
 table {
@@ -180,6 +181,22 @@ th {
   margin-top: 10px;
   animation: blink 1s infinite alternate;
 }
+
+.log-container {
+  margin-top: 2rem;
+}
+
+.log-box {
+  width: 98%;
+  height: 500px;
+  font-family: monospace;
+  background-color: #111;
+  color: #0f0;
+  padding: 1rem;
+  border: none;
+  border-radius: 8px;
+}
+
 
 @keyframes blink {
   from { opacity: 1; }
