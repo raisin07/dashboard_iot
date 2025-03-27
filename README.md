@@ -33,6 +33,42 @@ Le système collecte et affiche les informations suivantes :
 ✅ **Pagination des événements** pour une meilleure navigation 📑
 ✅ **Zoom et pan** sur les graphiques pour explorer les données 🔍
 
+## 🔁 **Exemples de données à envoyer via MQTT**
+Pour tester le dashboard, vous pouvez publier des messages sur le topic MQTT `capteurs` avec les formats suivants :
+
+### 🌀 Capteur gyroscope
+```json
+{
+  "capteurId": "capteur-gyroscope",
+  "timestamp": "2025-03-27T10:15:00Z",
+  "vibration": 1.8,
+  "ax": 0.5,
+  "ay": -0.3,
+  "az": 0.2
+}
+```
+
+### 🔊 Capteur son
+```json
+{
+  "capteurId": "capteur-son",
+  "timestamp": "2025-03-27T10:16:00Z",
+  "categorie": "Coup de feu",
+  "decibels": 92.5
+}
+```
+
+### 💡 Capteur lumière
+```json
+{
+  "capteurId": "capteur-lumiere",
+  "timestamp": "2025-03-27T10:17:00Z",
+  "lux": 630
+}
+```
+
+Ces messages doivent être envoyés au format JSON via MQTT sur le topic `capteurs`. Ils seront automatiquement affichés dans les tableaux correspondants du dashboard.
+
 ## 🚀 **Installation et exécution**
 ### 📥 **Cloner le repository**
 ```sh
